@@ -1,4 +1,15 @@
 {-# LANGUAGE InstanceSigs #-}
+{- |
+Module : Internal
+Description: The private methods from the Equation module
+Copyright : Lucas Elvira Martín, 2024
+License : BSD-3-Clause
+Maintainer : lucaselvira96@gmail.com
+
+
+This module contains the data type declaration
+and the utiliies functions and methods
+-}
 module Calc.Equation.Internal where
 
 import Data.Maybe
@@ -8,12 +19,13 @@ import Calc.CustomErrors
 -- | Represent the possibles operations
 data Operation = Sumatory | Difference | Division | Multiplication
 
+-- | Represent each operation with their math symbol
 instance Show Operation where
   show op = case op of
-    Sumatory -> "+"
-    Difference -> "-"
-    Division -> "/"
-    Multiplication -> "*"
+    Sumatory        -> "+"
+    Difference      -> "-"
+    Division        -> "/"
+    Multiplication  -> "*"
 
 instance Eq Operation where
   (==) :: Operation -> Operation -> Bool
@@ -28,12 +40,42 @@ instance Eq Operation where
                    (Division, _) -> False
 
 -- | Construct a numeric value based on int
-newtype NumericValue = NumericValue Int deriving (Show, Eq)
+newtype NumericValue = NumericValue Int deriving (Eq, Show)
 
-{- | Represent the possibles parts of the equations. It means, the values and the operation
+instance Num NumericValue where
+  (+) (NumericValue n1) (NumericValue n2)      = NumericValue (n1 + n2)
+  (-) (NumericValue n1) (NumericValue n2)      = NumericValue (n1 - n2)
+  (*) (NumericValue n1) (NumericValue n2)      = NumericValue (n1 * n2)
+  abs (NumericValue n1)                        = NumericValue $ abs n1
+  signum (NumericValue n1)                     = NumericValue $ signum n1
+  fromInteger n1                               = NumericValue $ fromInteger n1
 
-The objective is set them into one common description
--}
+-- | This is needed to extends Real class
+instance Ord NumericValue where
+  compare (NumericValue n1) (NumericValue n2)  = n1 `compare` n2
+
+-- | This is needed to Extends Integral
+instance Real NumericValue where
+  toRational (NumericValue n)                  = toRational n
+
+-- | This is needed to Extends Integral
+instance Enum NumericValue where
+  toEnum a                                     = NumericValue a
+  fromEnum (NumericValue a)                    = a
+
+instance Integral NumericValue where
+  (NumericValue n1) `quotRem` (NumericValue n2) =
+    let (q, r) =
+          n1 `quotRem` n2
+    in
+      (NumericValue q, NumericValue r)
+  toInteger (NumericValue n1) = toInteger n1
+
+
+-- | Represent the possibles parts of the equations. It means,
+-- the values and the operation
+--
+-- The objective is set them into one common description
 data Equation
   = ProcessValue NumericValue
   | ProcessOperation Operation
@@ -42,20 +84,6 @@ data Equation
 -- | A sorted list with the elements of the operation
 type Group = [Equation]
 
-{- | Convert a string into a set of Equations
-
-The string is split by space, so it is important to set almost one
-between each part of the operation.
-
-If exists any problem converting the string into Group, then raise an Error
--}
-parse :: String -> Group
-parse input = case parseEquation Nothing $ words input of
-  Left l -> error $ show l
-  Right r -> if isValid  r then
-               r
-             else
-               error $ show IsInvalidEquation
 
 -- | Convert an array of string into an array of equations.
 --
@@ -64,7 +92,11 @@ parse input = case parseEquation Nothing $ words input of
 -- >>> parseEquation Nothing ["99"]
 -- Right $ ProcessValue (NumericValue 99)
 -- >>> parseEquation Nothing ["99", "+", "9"]
--- Right $ [(ProcessValue (NumericValue 99)), (ProcessOperation Sumatory), (ProcessValue (NumericValue 9))]
+-- Right $ [
+--             (ProcessValue (NumericValue 99)),
+--             (ProcessOperation Sumatory),
+--             (ProcessValue (NumericValue 9))
+--         ]
 -- >>> parseEquation Nothing []
 --  Right []
 parseEquation :: Maybe Equation -> [String] -> Either MyExceptions Group
@@ -83,7 +115,6 @@ parseEquation context (next:rest) =
                   n -> case convertToInt n of
                          Nothing -> Left IsInvalidNumber
                          Just number -> Right number
-                         
     restEquation = parseEquation Nothing rest
 parseEquation context [] = Right $ maybeToList context
 
@@ -95,7 +126,8 @@ isNumber input = case reads input :: [(Int, String)] of
 
 -- | Check if a set of operations are valid
 isValid :: Group -> Bool
-isValid ((ProcessValue _):(ProcessOperation _):second:rest) = isValid (second:rest)
+isValid ((ProcessValue _):(ProcessOperation _):second:rest) =
+  isValid (second:rest)
 isValid ((ProcessValue _):(ProcessValue _):_) = False
 isValid [(ProcessValue _), (ProcessOperation _)] = False
 isValid [(ProcessValue _)] = True
@@ -104,10 +136,6 @@ isValid [] = True
 
 -- | If string is number, convert to ProcessValue. If not, returns nothing
 convertToInt :: String -> Maybe Equation
-convertToInt str =
-  if isNumber str then
-    Just num
-  else
-    Nothing
-  where num = ProcessValue $ NumericValue (read str :: Int)
-
+convertToInt str
+  | isNumber str = Just $ ProcessValue $ NumericValue (read str :: Int)
+  | otherwise = Nothing

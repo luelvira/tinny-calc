@@ -5,4 +5,4 @@ import qualified Calc.Operations as Op
 
 
 process :: String -> Int
-process = Op.operateWithPriority . Eq.parse
+process = fromInteger . toInteger . Op.operateWithPriority . Eq.parse
