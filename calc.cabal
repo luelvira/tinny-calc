@@ -1,0 +1,62 @@
+cabal-version: 2.4
+
+name: lem-calc
+version: 0.1.0
+synopsis: A small calculator to test haskell
+description: This packages provides a small calculator that read an operation from a file and print the result
+license: BSD-3-Clause
+license-file: LICENSE.txt
+author: Lucas Elvira Martín
+extra-doc-files:
+    README.org
+
+common common-settings
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+
+library
+  import: common-settings
+  hs-source-dirs: src
+  build-depends:
+      base
+    , directory
+  exposed-modules:
+    Calc
+        Calc.Operations
+        Calc.Equation
+            Calc.Equation.Internal
+         Calc.CustomErrors
+        
+  -- other-modules:
+
+executable lem-calc-gen
+  import: common-settings
+  hs-source-dirs: app
+  main-is: Main.hs
+  build-depends:
+      base
+    , lem-calc
+  ghc-options:
+    -O
+test-suite lem-calc-gen-test
+  import: common-settings
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Spec.hs
+  other-modules:
+    CalcEquationSpec
+    OperationsSpec
+    CalcSpec
+  build-depends:
+      base
+    , hspec
+    , hspec-discover
+    , raw-strings-qq
+    , lem-calc
+  ghc-options:
+    -O -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends:
+    hspec-discover:hspec-discover
+
+
