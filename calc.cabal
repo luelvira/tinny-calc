@@ -27,6 +27,7 @@ library
         Calc.Equation
             Calc.Equation.Internal
          Calc.CustomErrors
+         Calc.Lexer
         
   -- other-modules:
 
