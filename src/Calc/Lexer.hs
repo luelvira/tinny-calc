@@ -1,8 +1,11 @@
-module Calc.Lexer where
+module Calc.Lexer
+  ( lexicalParser
+  , Token(..)  
+) where
 
-import Data.Char
+import Data.Char ( isDigit )
 
-import qualified Calc.Equation as Eq
+import qualified Calc.Equation.Internal as Eq
 
 data Token
   = TokLeftParen
@@ -10,9 +13,10 @@ data Token
   | TokEquals
   | TokDot
   | TokOperator Eq.Operation
-  | TokNumber !Double
-  | TokEof
-  | TokEos -- Semi collon end of sentence
+  | TokNumber Double
+  | TokEof -- End of File
+  | TokEos -- End of Sentence
+  | TokEol -- End Of Line
   | TokError
   deriving (Show, Eq)
 

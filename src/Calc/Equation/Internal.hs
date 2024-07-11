@@ -60,7 +60,7 @@ instance Real NumericValue where
 
 -- | This is needed to Extends Integral
 instance Enum NumericValue where
-  toEnum a                                     = NumericValue a
+  toEnum                                       = NumericValue
   fromEnum (NumericValue a)                    = a
 
 instance Integral NumericValue where

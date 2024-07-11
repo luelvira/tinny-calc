@@ -1,5 +1,6 @@
 cabal-version: 2.4
 
+-- MetaInfo
 name: lem-calc
 version: 0.1.0
 synopsis: A small calculator to test haskell
@@ -9,12 +10,16 @@ license-file: LICENSE.txt
 author: Lucas Elvira Martín
 extra-doc-files:
     README.org
+-- -MetaInfo
 
+-- CommonSettings
 common common-settings
   default-language: Haskell2010
   ghc-options:
     -Wall
+-- -CommonSettings
 
+-- Library
 library
   import: common-settings
   hs-source-dirs: src
@@ -25,12 +30,14 @@ library
     Calc
         Calc.Operations
         Calc.Equation
-            Calc.Equation.Internal
+              Calc.Equation.Internal
          Calc.CustomErrors
          Calc.Lexer
-        
+              Calc.Lexer.AST
   -- other-modules:
+-- -Library
 
+-- Executable
 executable lem-calc-gen
   import: common-settings
   hs-source-dirs: app
@@ -40,6 +47,9 @@ executable lem-calc-gen
     , lem-calc
   ghc-options:
     -O
+-- -Executable
+
+-- TestBlock
 test-suite lem-calc-gen-test
   import: common-settings
   type: exitcode-stdio-1.0
@@ -59,5 +69,5 @@ test-suite lem-calc-gen-test
     -O -threaded -rtsopts -with-rtsopts=-N
   build-tool-depends:
     hspec-discover:hspec-discover
-
+-- -TestBlock
 
