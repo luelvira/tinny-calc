@@ -60,11 +60,13 @@ library
   exposed-modules:
     Calc
         Calc.Operations
+            Calc.Operations.Lexical
         Calc.Equation
               Calc.Equation.Internal
          Calc.CustomErrors
          Calc.Lexer
               Calc.Lexer.AST
+              Calc.Lexer.Internal
   -- other-modules:
 ```
 
@@ -96,10 +98,11 @@ test-suite lem-calc-gen-test
   type: exitcode-stdio-1.0
   hs-source-dirs: test
   main-is: Spec.hs
-  other-modules:
+  other-modules:    
     CalcEquationSpec
     OperationsSpec
     CalcSpec
+    CalcLexerInternalSpec
   build-depends:
       base
     , hspec
@@ -110,4 +113,143 @@ test-suite lem-calc-gen-test
     -O -threaded -rtsopts -with-rtsopts=-N
   build-tool-depends:
     hspec-discover:hspec-discover
+```
+
+
+# The lexer
+
+This is the first part of the parser. This module define the tokens and evaluate if the string could be represent with a custom grammar.
+
+The tokens are defined as:
+
+```haskell
+-- | A list with the possible tokens readded from the programm
+data Token
+  = TokLeftParen
+  | TokRightParen
+  | TokEquals
+  | TokDot
+  | TokOperator Eq.Operation
+  | TokNumber Double
+  | TokEof -- End of File
+  | TokEos -- End of Sentence
+  | TokEol -- End Of Line
+  | TokError
+  deriving (Show, Eq)
+```
+
+Some of these tokens will not be used at the moment, but could be used in future versions.
+
+And the grammar is:
+
+```haskell
+@
+S := Start symbol
+A := add operation
+B := {AT}
+C := {MF}
+F := Factor
+M := mult operation
+N := number
+n := digit
+T := term
+
+S -> TB
+S -> T
+B -> AT
+B -> ATB
+T -> F
+T -> FC
+C -> MF
+C -> MFC
+N -> nN
+N -> n
+A -> + | -
+M -> * | /
+@
+```
+
+A more clear version of the grammar was done with data type
+
+```haskell
+-- | Addition operations (Sum or difference)
+data Addop = Summ | Diff
+-- | Multiplication operations (multiplication and division)
+data Mulop = Mult | Divi
+-- | Real number
+newtype Value = RealValue Double deriving (Show, Eq)
+-- | Tuple with a Term and a list of possibles additional terms concatenate by an Addop
+newtype Expression = Expression (Term, [(Addop, Term)]) deriving (Show)
+-- | Tuple with a Factor and a list of possibles addition factors concatenate by an MulOp
+newtype Term = Term (Factor, [MulOpFact]) deriving (Show, Eq)
+-- | Factor and Value are equivalents
+newtype Factor = Factor Value deriving (Show, Eq)
+-- | Tuple with an Mulop and a Factor
+type MulOpFact = (Mulop, Factor)
+-- | Tuple with an Addop and a Term
+type AddopTerm = (Addop, Term)
+```
+
+
+## Tokens
+
+The most reduce piece of the grammar is the factor, which is only a number. The first function will tray to extract the number from the string and returns it and the string remainder
+
+```haskell
+-- | Given a string, returns a Value
+evalFactor :: String -> Either EvalError (Factor, String)
+evalFactor xs = case stringToValue xs of
+                  Right (f,s) -> Right (Factor f, s)
+                  Left l -> Left l
+```
+
+Next, a term is composed by a `Factor` and a list of `(MulOp, factor)`. So, I split the process in two functions.
+
+The first one will be in charge of iter over the string and returns the full list of tuples
+
+```haskell
+-- | Given a string and a list of tuples MulOpFact, return the complete list
+-- After iterate over the string, and the remainder part
+evalTerm' :: Maybe MulOpFact -> String -> Either EvalError ([MulOpFact], String)
+evalTerm' context "" = Right (maybeToList context, "")
+evalTerm' context rest@(r:rest') =
+  let (nextFactor, moreFactor) = case evalFactor rest' of
+                                   Right rightPart -> rightPart
+                                   Left l  -> throw l
+      (restMultOpFact, restTerm) = case evalTerm' Nothing moreFactor of
+                         Right rmf -> rmf
+                         Left l -> throw l
+  in
+    case r of
+      '*' -> Right (maybeToList context <> ((Mult, nextFactor):restMultOpFact), restTerm)
+      '/' -> Right (maybeToList context <> ((Divi, nextFactor):restMultOpFact), restTerm)
+      _   -> Right ([], rest)
+```
+
+With this auxiliary function, I can write the `evalTerm`
+
+```haskell
+-- | Given a string, return a Term and the rest of the string not evaluate
+evalTerm :: String -> Either EvalError (Term, String)
+evalTerm xs = case evalFactor xs of
+                Right (value, rest@(_:_)) -> case evalTerm' Nothing rest of
+                                             Right (list, restString)
+                                               -> Right (Term (value, list), restString)
+                                             Left l -> Left l
+                Right (v, rest) -> Right (Term (v, []), rest)
+                Left l -> Left l
+```
+
+Following the same approach, I write the last rule `expression`
+
+```haskell
+-- | Given a string, return a Term and the rest of the string not evaluate
+evalTerm :: String -> Either EvalError (Term, String)
+evalTerm xs = case evalFactor xs of
+                Right (value, rest@(_:_)) -> case evalTerm' Nothing rest of
+                                             Right (list, restString)
+                                               -> Right (Term (value, list), restString)
+                                             Left l -> Left l
+                Right (v, rest) -> Right (Term (v, []), rest)
+                Left l -> Left l
 ```

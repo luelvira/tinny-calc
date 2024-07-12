@@ -29,11 +29,13 @@ library
   exposed-modules:
     Calc
         Calc.Operations
+            Calc.Operations.Lexical
         Calc.Equation
               Calc.Equation.Internal
          Calc.CustomErrors
          Calc.Lexer
               Calc.Lexer.AST
+              Calc.Lexer.Internal
   -- other-modules:
 -- -Library
 
@@ -55,10 +57,11 @@ test-suite lem-calc-gen-test
   type: exitcode-stdio-1.0
   hs-source-dirs: test
   main-is: Spec.hs
-  other-modules:
+  other-modules:    
     CalcEquationSpec
     OperationsSpec
     CalcSpec
+    CalcLexerInternalSpec
   build-depends:
       base
     , hspec

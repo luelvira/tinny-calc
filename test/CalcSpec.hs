@@ -6,7 +6,7 @@ import Calc
 spec :: Spec
 spec = do
   describe "Test entry point"  $ do
-    it "Emtpy" $ shouldBe (process "") 0
+    it "Emtpy" $ shouldBe (process "") (0)
     it "Single value" $ shouldBe (process "-9") (-9)
     it "Two values" $ shouldBe (process "-9 + 5") (-4)
     it "Three values" $ shouldBe (process "-9 + 5 + 10") 6

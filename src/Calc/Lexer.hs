@@ -6,19 +6,8 @@ module Calc.Lexer
 import Data.Char ( isDigit )
 
 import qualified Calc.Equation.Internal as Eq
+import Calc.Lexer.Internal
 
-data Token
-  = TokLeftParen
-  | TokRightParen
-  | TokEquals
-  | TokDot
-  | TokOperator Eq.Operation
-  | TokNumber Double
-  | TokEof -- End of File
-  | TokEos -- End of Sentence
-  | TokEol -- End Of Line
-  | TokError
-  deriving (Show, Eq)
 
 data LexState = LexState
   { lexPos :: Peek
@@ -79,12 +68,6 @@ convertToToken text
   | all isDigit text = TokNumber (read text :: Double)
   | otherwise = TokError
   
-copyLexState :: LexState -> LexState
-copyLexState source = LexState
-                    { lexPos    = lexPos source
-                    , lexSource = lexSource source
-                    , lexContext = lexContext source
-                    }
 
 updateSource :: String -> Int -> String
 updateSource (x:xs) 0 = x:xs

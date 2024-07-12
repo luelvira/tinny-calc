@@ -1,3 +1,10 @@
+{- |
+Module: calc.Equation
+Description: Entry point to parse the equation as a lexer
+Copyright: Lucas Elvira Martín, 2024
+License: BSD-3-Clause
+Maintainer : lucaselvira96@gmail.com
+-}
 module Calc.Equation
   ( parse
   , Group  

@@ -55,7 +55,7 @@ In the ~library target~ we define:
 - The dependencies used by the program
 - Other modules that will be empty at this moment
 
-#+INCLUDE: "calc.cabal" src cabal :range-begin "Library" :range-end "-Library" :lines "23-38"
+#+INCLUDE: "calc.cabal" src cabal :range-begin "Library" :range-end "-Library" :lines "23-40"
 
 *** Executable target
 This is the name of the application. In this block, we define the name of the
@@ -64,7 +64,7 @@ configure it to use the common settings and add the our library as a dependency.
 Also, we add a new flag to the compilation process and set the folder with the
 code. In this case the ~app~ folder.
 
-#+INCLUDE: "calc.cabal" src cabal :range-begin "Executable" :range-end "-Executable" :lines "41-50"
+#+INCLUDE: "calc.cabal" src cabal :range-begin "Executable" :range-end "-Executable" :lines "43-52"
 
 *** Test target
 
@@ -74,5 +74,45 @@ that allows me define the test parts. One thing that is very important is to add
 all the modules which have the test to the build-depends, otherwise, they
 neither will be compiled or executed.
 
-#+INCLUDE: "calc.cabal" src cabal :range-begin "TestBlock" :range-end "-TestBlock" :lines "53-72"
+#+INCLUDE: "calc.cabal" src cabal :range-begin "TestBlock" :range-end "-TestBlock" :lines "55-75"
 
+
+
+* The lexer
+
+This is the first part of the parser. This module define the tokens and evaluate
+if the string could be represent with a custom grammar.
+
+The tokens are defined as:
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "DefineTokens" :range-end "-DefineTokens" :lines "51-64"
+
+Some of these tokens will not be used at the moment, but could be used in future versions.
+
+And the grammar is:
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "DefineGrammar" :range-end "-DefineGrammar" :lines "13-38"
+
+A more clear version of the grammar was done with data type
+
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "DefineTypes" :range-end "-DefineTypes" :lines "67-83"
+
+** Tokens
+
+The most reduce piece of the grammar is the factor, which is only a number. The
+first function will tray to extract the number from the string and returns it
+and the string remainder
+
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "EvalFactorFunction" :range-end "-EvalFactorFunction" :lines "227-232"
+
+Next, a term is composed by a ~Factor~ and a list of ~(MulOp, factor)~. So, I split
+the process in two functions.
+
+The first one will be in charge of iter over the string and returns the full
+list of tuples
+
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "EvalTermFunction'" :range-end "-EvalTermFunction'" :lines "207-223"
+
+With this auxiliary function, I can write the ~evalTerm~
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "EvalTermFunction" :range-end "-EvalTermFunction" :lines "195-204"
+
+Following the same approach, I write the last rule ~expression~
+#+INCLUDE: "src/Calc/Lexer/Internal.hs" src haskell :range-begin "EvalTermFunction" :range-end "-EvalTermFunction" :lines "195-204"

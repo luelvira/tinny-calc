@@ -1,3 +1,10 @@
+{- |
+Module: calc.CustomErrors
+Description: Define some instance of the errors that could be throw while running the library
+Copyright: Lucas Elvira Martín, 2024
+License: BSD-3-Clause
+Maintainer : lucaselvira96@gmail.com
+-}
 module Calc.CustomErrors where
 import Control.Exception
 
