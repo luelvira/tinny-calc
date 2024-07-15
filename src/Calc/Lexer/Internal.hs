@@ -55,12 +55,12 @@ data Token
   | TokEquals
   | TokDot
   | TokOperator Eq.Operation
-  | TokNumber Double
+  | TokNumber Value
   | TokEof -- End of File
   | TokEos -- End of Sentence
   | TokEol -- End Of Line
   | TokError
-  deriving (Show, Eq)
+  deriving (Eq)
 -- -DefineTokens
 
 -- DefineTypes
@@ -69,7 +69,8 @@ data Addop = Summ | Diff
 -- | Multiplication operations (multiplication and division)
 data Mulop = Mult | Divi
 -- | Real number
-newtype Value = RealValue Double deriving (Show, Eq)
+newtype Value = RealValue Double deriving (Eq)
+
 -- | Tuple with a Term and a list of possibles additional terms concatenate by an Addop
 newtype Expression = Expression (Term, [(Addop, Term)]) deriving (Show)
 -- | Tuple with a Factor and a list of possibles addition factors concatenate by an MulOp
@@ -81,6 +82,18 @@ type MulOpFact = (Mulop, Factor)
 -- | Tuple with an Addop and a Term
 type AddopTerm = (Addop, Term)
 -- -DefineTypes
+
+instance Show Token where
+  show TokLeftParen  = "'('"
+  show TokRightParen = "')'"
+  show TokEquals     = "'='"
+  show TokDot        = "'.'"
+  show (TokOperator op) = show op
+  show (TokNumber v) = show v
+  show TokEof        = "EOF"
+  show TokEos        = ";"
+  show TokEol        = "\\n"
+  show TokError      = "Unrecogniced token"
 
 -- AddProperties
 instance Show Addop where
@@ -100,6 +113,9 @@ instance Eq Mulop where
   (==) Mult Mult = True
   (==) Divi Divi = True
   (==) _ _ = False
+
+instance Show Value where
+  show (RealValue n) = show n
 
 -- -AddProperties
 data EvalError
@@ -121,6 +137,18 @@ instance Exception EvalError
 type Group = [Token]
 type EvalResult = Either EvalError (Group, String)
 
+opChars :: String
+opChars = "+-*/~<=>!&|%^"
+isOpChar :: Char -> Bool
+isOpChar x = x `elem` opChars
+
+
+stringToOperator :: String -> Maybe Eq.Operation
+stringToOperator "+" = Just Eq.Sumatory
+stringToOperator "-" = Just Eq.Difference
+stringToOperator "*" = Just Eq.Multiplication
+stringToOperator "/" = Just Eq.Division
+stringToOperator _ = Nothing
 
 -- | Convert a character into the correspondenting value
 charToAddop :: Char -> Either EvalError Addop
@@ -134,19 +162,37 @@ charToMulop '*' = Right Mult
 charToMulop '/' = Right Divi
 charToMulop _   = Left InvalidMulopSign
 
--- | Giving a String, transform it into a double.
+-- | Function stringToDouble takes a string and returns the tuple (Value, String)
+-- Where Value is a wrap with the literal converted into double
+--
 -- | If the string start with '-', negate the number
 -- | If the string start with '.', add a 0 before
-stringToValue :: String -> Either EvalError (Value, String)
-stringToValue ('-':xs) = case stringToValue xs of
-                           Right (RealValue v, rest) -> Right (RealValue (-v), rest)
+stringToDouble :: String -> Either EvalError (Double, String)
+stringToDouble ('-':xs) = case stringToDouble xs of
+                           Right (v, rest) -> Right ((-v), rest)
                            Left _ -> Left InvalidNumber
-stringToValue xs'@('.':_) = stringToValue $ '0':xs'
-stringToValue xs@(x:_)
-  | isDigit x = Right (RealValue (read digitPart :: Double), restPart)
+stringToDouble xs'@('.':_) = stringToDouble $ '0':xs'
+stringToDouble xs@(x:_)
+  | isDigit x = Right (read digitPart :: Double, restPart)
   | otherwise = Left InvalidNumber
   where (digitPart, restPart) = span (\c -> isDigit c  || c == '.') xs
-stringToValue "" = Left InvalidNumber
+stringToDouble "" = Left InvalidNumber
+
+stringToValue :: String -> Either EvalError (Value, String)
+stringToValue xs = case stringToDouble xs of
+                     Right (value, left) -> Right (RealValue value, left)
+                     Left l -> Left l
+
+isMulOp :: Eq.Operation -> Bool
+isMulOp Eq.Multiplication  = True
+isMulOp Eq.Division        = True
+isMulOp _                  = False
+
+isAddOp :: Eq.Operation -> Bool
+isAddOp Eq.Sumatory        = True
+isAddOp Eq.Difference      = True
+isAddOp _                  = False
+
 
 
 -- | For each character, the function will run all the possibles rules defined
@@ -230,5 +276,6 @@ evalFactor xs = case stringToValue xs of
                   Right (f,s) -> Right (Factor f, s)
                   Left l -> Left l
 -- -EvalFactorFunction
+
 
   

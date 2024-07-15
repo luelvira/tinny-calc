@@ -21,27 +21,56 @@ spec = do
           Li.charToMulop 'a' `shouldBe` (Left Li.InvalidMulopSign)
 
         it "Conversion between strings and values" $ do
-          Li.stringToValue "58" `shouldBe` (Right (Li.RealValue 58, ""))
-          Li.stringToValue "58+56" `shouldBe` (Right (Li.RealValue 58, "+56"))
-          (Li.stringToValue $ Li.cleanString "58 + 56") `shouldBe` (Right (Li.RealValue 58, "+56"))
-          (Li.stringToValue $ Li.cleanString "a + ;") `shouldBe` (Left Li.InvalidNumber)
+          shouldBe
+            (Li.stringToValue "58")
+            (Right (Li.RealValue 58, ""))
+          shouldBe
+            (Li.stringToValue "58+56")
+            (Right (Li.RealValue 58, "+56"))
+          shouldBe
+            (Li.stringToValue $ Li.cleanString "58 + 56")
+            (Right (Li.RealValue 58, "+56"))
+          shouldBe
+            (Li.stringToValue $ Li.cleanString "a + ;")
+            (Left Li.InvalidNumber)
 
         it "Conversion between strings to Factor" $ do
-          Li.evalFactor "0.58" `shouldBe` (Right (Li.Factor $ Li.RealValue 0.58, ""))
-          Li.evalFactor "58.85+56" `shouldBe` (Right (Li.Factor $ Li.RealValue 58.85, "+56"))
-          (Li.evalFactor $ Li.cleanString ".58 + 56") `shouldBe` (Right (Li.Factor $ Li.RealValue 0.58, "+56"))
+          shouldBe
+            (Li.evalFactor "0.58")
+            (Right (Li.Factor $ Li.RealValue 0.58, ""))
+          shouldBe
+            (Li.evalFactor "58.85+56")
+            (Right (Li.Factor $ Li.RealValue 58.85, "+56"))
+          shouldBe
+            (Li.evalFactor $ Li.cleanString ".58 + 56")
+            (Right (Li.Factor $ Li.RealValue 0.58, "+56"))
+
     describe "Test terms composition" $ do
       it "Only use evalTerm'" $ do
-        Li.evalTerm' Nothing "7+95" `shouldBe` Right ([], "7+95")
-        Li.evalTerm' Nothing "*95" `shouldBe` Right ([(Li.Mult, Li.Factor $ Li.RealValue 95)], "")
-        Li.evalTerm' Nothing "*95/5+953" `shouldBe` Right ([
-                                                              (Li.Mult, Li.Factor $ Li.RealValue 95),
-                                                              (Li.Divi, Li.Factor $ Li.RealValue 5)
-                                                            ], "+953")
+        shouldBe
+          (Li.evalTerm' Nothing "7+95")
+          (Right ([], "7+95"))
+        shouldBe
+          (Li.evalTerm' Nothing "*95")
+          (Right ([(Li.Mult, Li.Factor $ Li.RealValue 95)], ""))
+        shouldBe
+          (Li.evalTerm' Nothing "*95/5+953")
+          (Right ([
+                    (Li.Mult, Li.Factor $ Li.RealValue 95),
+                    (Li.Divi, Li.Factor $ Li.RealValue 5)
+                 ], "+953")
+          )
+
       it "Only use evalTerm" $ do
-        Li.evalTerm "7*5+3" `shouldBe` Right
-          (
-            Li.Term (Li.Factor $ Li.RealValue 7, [(Li.Mult, Li.Factor $ Li.RealValue 5)]) , "+3"
+        shouldBe
+          (Li.evalTerm "7*5+3")
+          (Right
+            ( Li.Term
+              ( Li.Factor $ Li.RealValue 7
+              , [(Li.Mult, Li.Factor $ Li.RealValue 5)]
+              )
+            , "+3"
+            )
           )
     describe "Test eval expressions" $ do
       it "Using evalExpression' with one element" $

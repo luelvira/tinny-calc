@@ -1,75 +1,51 @@
-module Calc.Lexer
-  ( lexicalParser
-  , Token(..)  
-) where
+{- |
+Module: Calc.Lexer
+Description: Provide the lexer parser equations.
+Copyright: Lucas Elvira Martín, 2024
+License: BSD-3-Clause
+Maintainer : lucaselvira96@gmail.com
 
-import Data.Char ( isDigit )
+The lexer will extract the tokens and check if the grammar is valid.
+-}
+module Calc.Lexer where
 
-import qualified Calc.Equation.Internal as Eq
+import Data.Char
+  ( isSpace
+  , isDigit
+  )
+
 import Calc.Lexer.Internal
+import Calc.Lexer.AST
+
+data SyntaxError
+  = SyntaxOperator String
+  | SyntaxNumber String
 
 
-data LexState = LexState
-  { lexPos :: Peek
-  , lexSource :: String
-  , lexContext :: [Token]
-  }
-  deriving (Show, Eq)
-
-newtype Peek = Peek (Int, Int) deriving (Show, Eq)
-
-move :: Peek -> Peek -> Peek
-(move) (Peek (l1, c1)) (Peek (l2, c2)) = Peek (l1 + l2, c1 + c2)
-  
-
--- | Convert the streem into tokens
-lexicalParser :: String -> [Token]
-lexicalParser src = lex' LexState {
-  lexPos = Peek (1, 1),
-  lexSource = src,
-  lexContext = []
-  } src
-
-lex' :: LexState -> String -> [Token]
-lex' state "" = lexContext state <> [TokEof]
-lex' state src =
-  let
-    (token, readded) = nextWhileNotWhite "" 0 src
-    tokenType = convertToToken token
-    _lexContext = lexContext state
-    newState = LexState {
-      lexContext = _lexContext <> [tokenType],
-      lexSource = lexSource state,
-      lexPos = lexPos state `move` Peek (0, readded)
-      }
-  in
-    lex' newState (updateSource src readded)
 
 
-nextWhileNotWhite ::
-  String ->
-  Int ->
-  String ->
-  (String, Int)
-nextWhileNotWhite "" cursor (' ':xs) = nextWhileNotWhite "" (cursor + 1) xs
-nextWhileNotWhite context cursor (' ':_) = (context, cursor)
-nextWhileNotWhite context cursor (c:rest) = nextWhileNotWhite (context <> [c]) (cursor + 1) rest
-nextWhileNotWhite context cursor "" = (context, cursor)
+--lexicalParser :: String -> Either ParErr Expr
+--lexicalParser xs =
+--  case lex' xs of
+--    [] -> Left $ IncompleteError xs
+--    ts ->
+--      case parseExpression ts of
+--
 
-convertToToken :: String -> Token
-convertToToken text
-  | text == "(" = TokLeftParen
-  | text == ")" = TokRightParen
-  | text == "+" = TokOperator Eq.Sumatory
-  | text == "-" = TokOperator Eq.Difference
-  | text == "/" = TokOperator Eq.Division
-  | text == "*" = TokOperator Eq.Multiplication
-  | text == ";" = TokEos
-  | all isDigit text = TokNumber (read text :: Double)
-  | otherwise = TokError
-  
+lex' :: String -> [Token]
+lex' "" = []
+lex' xs@(x:xs')
+  | isSpace x = lex' xs' -- in case the string have not been cleaned
+  | x == '(' = TokLeftParen : lex' xs'
+  | x == ')' = TokRightParen : lex' xs'
+  | isDigit x = case stringToValue xs of
+                  Right (value, rest) -> TokNumber value : lex' rest
+                  Left _ -> error "There was an error reading a number"
+  | isOpChar x = let
+      (opString, rest) = span isOpChar xs
+      op = case stringToOperator opString of
+             Just o -> o
+             Nothing -> error ("There was an error reading the operation " <> opString)
+      in TokOperator op : lex' rest
+  | otherwise = TokError : lex' xs'
 
-updateSource :: String -> Int -> String
-updateSource (x:xs) 0 = x:xs
-updateSource "" _ = ""
-updateSource (_:xs) letters = updateSource xs (letters - 1)
