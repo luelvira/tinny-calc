@@ -1,0 +1,93 @@
+cabal-version:      3.0
+name:               dummy-calc
+version:            1.0.0.0
+synopsis:           A simple parser for arithmetic operation
+
+-- A longer description of the package.
+-- description:
+
+license:            GPL-3.0-only
+license-file:       LICENSE
+author:             Lucas Elvira Martín
+maintainer:         lucaselvira96@gmail.com
+category:           Language
+extra-doc-files:    CHANGELOG.md
+-- Extra source files to be distributed with the package, such as examples, or a tutorial module.
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+library
+    -- Import common warning flags.
+    import:           warnings
+    -- Modules exported by the library.
+    exposed-modules:
+                    DummyCalc
+                      DummyCalc.Lexer
+                        DummyCalc.Lexer.Tokens
+                        DummyCalc.Lexer.SyntaxError
+                      DummyCalc.Language
+                      DummyCalc.Language.Data.Internal
+                      DummyCalc.Parser
+                        DummyCalc.Parser.AST
+                        DummyCalc.Parser.Data.Internal
+
+    -- Modules included in this library but not exported.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+
+    -- Other library packages from which modules are imported.
+    build-depends:    base ^>=4.17.2.1
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+executable dummy-calc
+    import:           warnings
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+
+    -- Other library packages from which modules are imported.
+    build-depends:
+        base ^>=4.17.2.1,
+        dummy-calc
+    hs-source-dirs:   app
+    default-language: Haskell2010
+
+test-suite dummy-calc-test
+    import:           warnings
+    default-language: Haskell2010
+    -- Modules included in this executable, other than Main.
+    other-modules:
+        LexerSpec
+        ParserSpec
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+
+    -- The interface type and version of the test suite.
+    type:             exitcode-stdio-1.0
+
+    -- Directories containing source files.
+    hs-source-dirs:   test
+
+    -- The entrypoint to the test suite.
+    main-is:          Spec.hs
+
+    -- Test dependencies.
+    build-depends:
+        base ^>=4.17.2.1
+      , dummy-calc
+      , hspec
+      , hspec-discover
+      , raw-strings-qq
+  ghc-options:
+    -O -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends:
+    hspec-discover:hspec-discover

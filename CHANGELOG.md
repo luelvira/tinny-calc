@@ -1,4 +1,4 @@
-# Revision history for 
+# Revision history for dummy-calc
 
 ## 0.1.0.0 -- YYYY-mm-dd
 
