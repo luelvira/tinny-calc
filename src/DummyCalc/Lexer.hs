@@ -15,6 +15,7 @@ import Data.Char
 import DummyCalc.Lexer.Tokens
 
 
+-- LexerFun
 -- | Convert a string into a list of lexems
 lexer :: String -> [Token]
 lexer "" = []
@@ -29,4 +30,5 @@ lexer xs@(x:xs')
                    Right (op, rest) -> TokOperator op : lexer rest
                    Left _ -> error "Invalid Operator"
   | otherwise = TokError : lexer xs'
+-- -LexerFun
   

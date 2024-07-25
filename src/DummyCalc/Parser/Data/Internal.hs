@@ -33,7 +33,7 @@ instance Show ParErr where
   show (MissingRightParen xs) = "Missing ')' at \"" <> show (takeTokens xs) <> "\""
   show (NotImplemented f) = "Function: " <> f <> " is not implemented"
 
-
+-- | AST representation
 data Expr
   = Add Expr Expr
   | Sub Expr Expr
@@ -52,7 +52,8 @@ instance Show Expr where
   show (Div l r) = showPar "/" l r
 
 showPar :: String -> Expr -> Expr -> String
-showPar o e1 e2 = "(" <> show e1 <> " " <> o <> " " <> show e2 <> ")"
+-- showPar o e1 e2 = "(" <> show e1 <> " " <> o <> " " <> show e2 <> ")"
+showPar o e1 e2 = "(" <> o <> " " <> show e1 <> " " <> show e2 <> " )"
 
 errToken :: Int
 errToken = 5

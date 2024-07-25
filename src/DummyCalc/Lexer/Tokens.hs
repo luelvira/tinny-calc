@@ -10,23 +10,25 @@ import Data.Char (isDigit)
 import DummyCalc.Lexer.SyntaxError (SyntaxError(..))
 import DummyCalc.Language.Data.Internal as La
 
+-- TokensDef
 -- | Token are the smallest semantically piece of information.
 -- | Each constructor represent an abstraction of the readed text
 -- | except TokOperator and TokNumber which need information about the values
 -- | they represent
 data Token
-  = TokLeftParen
-  | TokRightParen
-  | TokEquals
-  | TokOperator La.Operation
-  | TokNumber La.Value
-  | TokEof
-  | TokEos
-  | TokEol
-  | TokError
+  = TokLeftParen -- ^ (
+  | TokRightParen -- ^ )
+  | TokEquals -- ^ =
+  | TokOperator La.Operation -- ^ + | - | * | /
+  | TokNumber La.Value -- ^ a number
+  | TokEof -- ^ End Of File
+  | TokEos -- ^ End of Sentence
+  | TokEol -- ^ End of Line
+  | TokError -- ^ Error
   deriving (Eq)
+-- -TokensDef
 
-
+-- ShowTokens
 instance Show Token where
   show TokLeftParen  = "'('"
   show TokRightParen = "')'"
@@ -37,6 +39,7 @@ instance Show Token where
   show TokEos        = ";"
   show TokEol        = "\\n"
   show TokError      = "Unrecogniced token"
+-- -ShowTokens
 
 -- | A list with valid character that composes the operations
 opChars :: String

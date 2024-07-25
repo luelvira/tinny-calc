@@ -8,3 +8,5 @@ Maintainer: lucaselvira96@gmail.com
 module DummyCalc.Language ( Value(..), Operation(..)) where
 
 import DummyCalc.Language.Data.Internal
+
+-- Language.hs ends here

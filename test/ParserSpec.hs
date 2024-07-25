@@ -76,4 +76,20 @@ spec = do
                 )
                 (Val $ La.Value 2)
               ), [])
-    
+
+  it "Parse -5 + 2 * 9 * 9 * 9" $
+    shouldBe
+      (parseExpression $ lexer "-5 + 2 * 9 * 9 * 9")
+      (Right ( Add
+               (Val $ La.Value (-5))
+               ( Mul
+                 ( Mul
+                   ( Mul
+                     (Val $ La.Value 2)
+                     (Val $ La.Value 9)
+                   )
+                   (Val $ La.Value 9)
+                 )
+                 (Val $ La.Value 9)
+               )
+             ), [])

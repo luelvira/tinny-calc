@@ -42,7 +42,9 @@ expression ::= term moreterms
 moreterms  ::= { addterm }
 addterm    ::= addop term
 @
+
 -}
+-- parseExpressionDef
 parseExpression :: [Token] -> (Either ParErr Expr, [Token])
 parseExpression xs =
   case parseTerm xs of
@@ -72,6 +74,7 @@ isAddOp :: La.Operation -> Bool
 isAddOp La.Summatory = True
 isAddOp La.Difference = True
 isAddOp _ = False
+-- -parseExpressionDef
 
 
 {- |
@@ -90,7 +93,7 @@ Can be refactored to:
 
 Each rule will be represented as a function
 -}
--- <term> ::= <factor> <morefactor>
+-- ParseTermsDef
 parseTerm :: [Token] -> (Either ParErr Expr, [Token])
 parseTerm xs =
   case parseFactor xs of
@@ -119,7 +122,7 @@ isMulOp :: La.Operation -> Bool
 isMulOp La.Multiplication = True
 isMulOp La.Division = True
 isMulOp _ = False
-
+-- -ParseTermsDef
 
 
 {- |
@@ -136,7 +139,7 @@ This rule can be refactored to:
 > <factor> ::= <val> | <nestexpr>
 > <nestexpr> ::= <leftparen> <expression> <rightparen>
 -}
--- <factor> ::= <var> | <val> | <nestexpr>
+-- ParseFactorDef
 parseFactor :: [Token] -> (Either ParErr Expr, [Token])
 parseFactor xs =
   case parseVar xs of
@@ -169,3 +172,4 @@ parseNestExpr xs@(TokLeftParen:ys) =
         _                  -> (Left $ MissingRightParen zs, xs)
     (err@(Left _), _) -> (err, xs)
 parseNestExpr xs = (Left $ MissingLeftParen xs, xs)
+-- -ParseFactorDef
