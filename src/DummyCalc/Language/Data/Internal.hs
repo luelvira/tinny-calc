@@ -33,4 +33,16 @@ newtype Value = Value Double deriving (Eq)
 instance Show Value where
   show (Value d) = show d
 
+instance Num Value where
+  (+) (Value v1) (Value v2) = Value (v1 + v2)
+  (-) (Value v1) (Value v2) = Value (v1 - v2)
+  (*) (Value v1) (Value v2) = Value (v1 * v2)
+  abs (Value v1) = Value $ abs v1
+  signum (Value v1) = Value $ signum v1
+  fromInteger = Value . fromInteger
+
+instance Fractional Value where
+  (/) (Value v1) (Value v2) = Value $ (/) v1 v2
+  fromRational = Value . fromRational
+
 -- DummyCalc/Language/Data/Internal.hs

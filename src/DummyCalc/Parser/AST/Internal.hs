@@ -12,6 +12,7 @@ module DummyCalc.Parser.AST.Internal where
 import DummyCalc.Parser.Data.Internal
 import DummyCalc.Language as La
 
+-- makeBinOpSeqDef
 -- | Shortcut for the header 2 expressions as parameters and returns a new one.
 type Constructor = Expr -> Expr -> Expr
 
@@ -23,11 +24,9 @@ The process is recursive, so we need to combine the first 2 expression into only
 one, and continue the process until finish the list
 
 -}
--- makeBinOpSeqDef
 makeBinOpSeq :: Expr -> [(La.Operation, Expr)] -> Expr
 makeBinOpSeq e1 [] = e1
 makeBinOpSeq e1 ((op,e2):xs) = makeBinOpSeq (makeBinOp op e1 e2) xs
--- -makeBinOpSeqDef
 
 
 {- |
@@ -48,3 +47,4 @@ makeBinOp op e1 e2 =
         (La.Multiplication, Mul),
         (La.Division, Div)
       ]
+-- -makeBinOpSeqDef

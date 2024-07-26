@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               dummy-calc
-version:            1.0.0.0
+version:            1.0.1.0
 synopsis:           A simple parser for arithmetic operation
 
 -- A longer description of the package.
@@ -32,6 +32,7 @@ library
                         DummyCalc.Parser.AST
                         DummyCalc.Parser.AST.Internal
                         DummyCalc.Parser.Data.Internal
+                      DummyCalc.Eval
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -69,6 +70,7 @@ test-suite dummy-calc-test
     other-modules:
         LexerSpec
         ParserSpec
+        EvalSpec
     -- -TestOtherModules
 
     -- LANGUAGE extensions used by modules in this package.

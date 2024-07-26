@@ -41,6 +41,7 @@ instance Show Token where
   show TokError      = "Unrecogniced token"
 -- -ShowTokens
 
+-- opCharsDef
 -- | A list with valid character that composes the operations
 opChars :: String
 opChars = "+-*/~<=>!&|%^"
@@ -65,7 +66,9 @@ readOperator xs = case stringToOperator op of
                     Nothing -> Left InvalidOperator
                   where
                     (op, rest) = span isOpChar xs
+-- -opCharsDef
 
+-- stringToDoubleDef
 -- | Read a string and returns the number at this position and the remaining
 -- | text or an SyntaxError in case of invalid number
 stringToDouble :: String -> Either SyntaxError (Double, String)
@@ -84,3 +87,4 @@ readValue xs = case stringToDouble xs of
                      Right (value, left) -> Right (La.Value value, left)
                      Left l -> Left l
 
+-- -stringToDoubleDef
