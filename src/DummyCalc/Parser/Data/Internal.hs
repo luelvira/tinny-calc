@@ -33,14 +33,17 @@ instance Show ParErr where
   show (MissingRightParen xs) = "Missing ')' at \"" <> show (takeTokens xs) <> "\""
   show (NotImplemented f) = "Function: " <> f <> " is not implemented"
 
+type Name = String
+
 -- | AST representation
 data Expr
   = Add Expr Expr
   | Sub Expr Expr
   | Mul Expr Expr
   | Div Expr Expr
-  | Var String
+  | Var La.Variable
   | Val La.Value
+  | Ass Name Expr
   deriving (Eq)
 
 instance Show Expr where
@@ -50,6 +53,7 @@ instance Show Expr where
   show (Sub l r) = showPar "-" l r
   show (Mul l r) = showPar "*" l r
   show (Div l r) = showPar "/" l r
+  show (Ass n e) = n <> " = " <> (show e)
 
 showPar :: String -> Expr -> Expr -> String
 -- showPar o e1 e2 = "(" <> show e1 <> " " <> o <> " " <> show e2 <> ")"

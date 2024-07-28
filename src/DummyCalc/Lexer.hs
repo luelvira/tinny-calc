@@ -23,12 +23,33 @@ lexer xs@(x:xs')
   | isSpace x = lexer xs'
   | x == '(' = TokLeftParen : lexer xs'
   | x == ')' = TokRightParen : lexer xs'
-  | isDigit x = case readValue xs of
-                  Right (value, rest) -> TokNumber value : lexer rest
-                  Left _ -> error "Invalid Number"
-  | isOpChar x = case readOperator xs of
-                   Right (op, rest) -> TokOperator op : lexer rest
-                   Left _ -> error "Invalid Operator"
+  | x == '=' = caseEquals xs'
+  | isDigit x = caseReadValue xs
+  | isOpChar x = caseReadOperator xs
+  | isValidAsFirstChar x = caseIsVariable xs
   | otherwise = TokError : lexer xs'
 -- -LexerFun
-  
+
+caseReadValue :: String -> [Token]
+caseReadValue xs =
+  case readValue xs of
+    Right (value, rest) -> TokNumber value : lexer rest
+    Left _ -> error "Invalid Number"
+
+caseReadOperator :: String -> [Token]
+caseReadOperator xs =
+  case readOperator xs of
+    Right (op, rest) -> TokOperator op : lexer rest
+    Left _ -> error "Invalid Operator"
+
+caseIsVariable :: String -> [Token]
+caseIsVariable xs =
+  case readVariable xs of
+    Right (var, rest) -> TokVar var: lexer rest
+    Left _ -> error "Invalid variable name"
+
+caseEquals :: String -> [Token]
+caseEquals xs =
+  case xs of
+    ('>':ys) -> TokEquals : lexer ys
+    _ -> caseReadOperator xs

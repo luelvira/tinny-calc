@@ -3,12 +3,14 @@ module DummyCalc.Lexer.Tokens
   , readValue
   , readOperator
   , isOpChar
+  , readVariable
+  , isValidAsFirstChar
   ) where
 
-import Data.Char (isDigit)
+import Data.Char (isDigit, isAlphaNum, isAlpha)
 
 import DummyCalc.Lexer.SyntaxError (SyntaxError(..))
-import DummyCalc.Language.Data.Internal as La
+import DummyCalc.Language as La
 
 -- TokensDef
 -- | Token are the smallest semantically piece of information.
@@ -20,7 +22,8 @@ data Token
   | TokRightParen -- ^ )
   | TokEquals -- ^ =
   | TokOperator La.Operation -- ^ + | - | * | /
-  | TokNumber La.Value -- ^ a number
+  | TokNumber La.NumValue -- ^ a number
+  | TokVar La.Variable -- ^ a variable
   | TokEof -- ^ End Of File
   | TokEos -- ^ End of Sentence
   | TokEol -- ^ End of Line
@@ -35,6 +38,7 @@ instance Show Token where
   show TokEquals     = "'='"
   show (TokOperator op) = show op
   show (TokNumber v) = show v
+  show (TokVar v)    = show v
   show TokEof        = "EOF"
   show TokEos        = ";"
   show TokEol        = "\\n"
@@ -82,9 +86,23 @@ stringToDouble xs@(x:_)
   where (digitPart, restPart) = span (\c -> isDigit c  || c == '.') xs
 stringToDouble "" = Left InvalidNumber
 
-readValue :: String -> Either SyntaxError (Value, String)
+readValue :: String -> Either SyntaxError (NumValue, String)
 readValue xs = case stringToDouble xs of
-                     Right (value, left) -> Right (La.Value value, left)
+                     Right (value, left) -> Right (NumValue value, left)
                      Left l -> Left l
-
 -- -stringToDoubleDef
+
+isValidAsFirstChar :: Char -> Bool
+isValidAsFirstChar c = isAlpha c || c == '_'
+
+
+isValidAsVariable :: Char -> Bool
+isValidAsVariable = isAlphaNum
+
+
+readVariable :: String -> Either SyntaxError (La.Variable, String)
+readVariable (x:xs) = if isValidAsFirstChar x then (let
+                                                      (name, rest) = span isValidAsVariable xs
+                                                    in Right (La.Variable (x:name), rest))
+                        else Left InvalidNameVariable
+readVariable _ = Left InvalidNameVariable

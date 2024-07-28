@@ -16,4 +16,5 @@ data SyntaxError
   | InvalidExpression
   | InvalidOperator
   | EmptyExpression
+  | InvalidNameVariable
   deriving (Show, Eq)

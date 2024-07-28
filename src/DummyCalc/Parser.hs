@@ -15,7 +15,7 @@ module DummyCalc.Parser
   )
 where
 
-import DummyCalc.Language.Data.Internal as La
+import DummyCalc.Language as La
 import DummyCalc.Parser.Data.Internal
 import DummyCalc.Lexer.Tokens
 import DummyCalc.Parser.AST
@@ -155,11 +155,12 @@ parseFactor xs =
 
 parseVal :: [Token] -> (Either ParErr Expr, [Token])
 parseVal ((TokNumber n):xs) = (Right (Val n), xs)
-parseVal ((TokOperator La.Difference):(TokNumber (La.Value n)):xs) =
-  (Right $ Val $ La.Value (-n), xs)
+parseVal ((TokOperator La.Difference):(TokNumber (La.NumValue n)):xs) =
+  (Right $ Val $ La.NumValue (-n), xs)
 parseVal xs = (Left $ MissingValue xs, xs)
 
 parseVar :: [Token] -> (Either ParErr Expr, [Token])
+parseVar ((TokVar x):xs) = (Right (Var x), xs)
 parseVar xs = (Left $ NotImplemented "parseVar", xs)
 
 -- | <nestexpr> ::= ( <expr> )

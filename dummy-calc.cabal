@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               dummy-calc
-version:            1.0.1.0
+version:            2.0.0
 synopsis:           A simple parser for arithmetic operation
 
 -- A longer description of the package.
@@ -27,12 +27,16 @@ library
                         DummyCalc.Lexer.Tokens
                         DummyCalc.Lexer.SyntaxError
                       DummyCalc.Language
-                      DummyCalc.Language.Data.Internal
+                        DummyCalc.Language.Data.Operations
+                        DummyCalc.Language.Data.Types
                       DummyCalc.Parser
                         DummyCalc.Parser.AST
                         DummyCalc.Parser.AST.Internal
                         DummyCalc.Parser.Data.Internal
                       DummyCalc.Eval
+                      DummyCalc.Environment
+                        DummyCalc.Environment.NumEnvironment
+                        DummyCalc.Environment.Internal
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -42,6 +46,7 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.17.2.1
+                    , containers
     hs-source-dirs:   src
     default-language: Haskell2010
 

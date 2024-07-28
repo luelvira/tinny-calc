@@ -14,16 +14,21 @@ module DummyCalc.Eval where
 import DummyCalc.Parser.Data.Internal
 import DummyCalc.Language as La
 
+import DummyCalc.Environment
 
--- Eval funciton. Given an Expression, returns the value that results of their operations
-eval:: Expr -> La.Value
-eval ex =
-  case ex of
-    (Add ex1 ex2) -> (+) (eval ex1) (eval ex2)
-    (Sub ex1 ex2) -> (-) (eval ex1) (eval ex2)
-    (Mul ex1 ex2) -> (*) (eval ex1) (eval ex2)
-    (Div ex1 ex2) -> (/) (eval ex1) (eval ex2)
-    (Val v1) -> v1
-    (Var _) -> error "Function not implemented"
+
+-- | Eval funciton. Given an Expression, returns the value that results of their operations
+eval:: Expr -> Env -> La.NumValue
+eval (Val v) _ = v
+eval (Var (La.Variable n)) env =
+  case getNumValue env n of
+    Nothing -> error $ "Undefined variable " <> n
+    Just v  -> v
+
+eval (Add l r) env = (+) (eval l env) (eval r env)
+eval (Sub l r) env = (-) (eval l env) (eval r env)
+eval (Mul l r) env = (*) (eval l env) (eval r env)
+eval (Div l r) env = (/) (eval l env) (eval r env)
+eval  _ _ = error "Function not implemented"
 
 
