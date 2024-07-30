@@ -44,7 +44,7 @@ spec = do
                , Token.TokOperator $ La.Division
                , Token.TokNumber $ La.NumValue 3
                ]
-    it "Test let x = 5" $
+    it "Test let x => 5" $
       shouldBe
         (Lexer.lexer "x => 5")
         [ Token.TokVar $ La.Variable "x"
@@ -72,6 +72,17 @@ spec = do
         , Token.TokNumber $ La.NumValue 3
         , Token.TokOperator La.Summatory
         , Token.TokNumber $ La.NumValue 2
+        ]
+    it "Test x=>5;x+3" $
+      shouldBe
+        ( Lexer.lexer "x=>5;x+3")
+        [ Token.TokVar $ La.Variable "x"
+        , Token.TokEquals
+        , Token.TokNumber $ La.NumValue 5
+        , Token.TokEos
+        , Token.TokVar $ La.Variable "x"
+        , Token.TokOperator La.Summatory
+        , Token.TokNumber $ La.NumValue 3
         ]
       
     

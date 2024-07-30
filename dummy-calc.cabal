@@ -30,6 +30,7 @@ library
                         DummyCalc.Language.Data.Operations
                         DummyCalc.Language.Data.Types
                       DummyCalc.Parser
+                        DummyCalc.Parser.Internal
                         DummyCalc.Parser.AST
                         DummyCalc.Parser.AST.Internal
                         DummyCalc.Parser.Data.Internal

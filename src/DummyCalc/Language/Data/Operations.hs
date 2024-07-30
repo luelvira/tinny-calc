@@ -17,11 +17,11 @@ data Operation
 
 instance Show Operation where
   show op = case op of
-    Summatory       -> "+"
-    Difference      -> "-"
-    Multiplication  -> "*"
-    Division        -> "/"
-    Assign        -> " Assign "
+    Summatory       -> "ADD"
+    Difference      -> "SUB"
+    Multiplication  -> "MUL"
+    Division        -> "DIV"
+    Assign          -> "ASS"
 
 instance Eq Operation where
   (==) Summatory Summatory            = True
@@ -34,5 +34,8 @@ instance Eq Operation where
 
 data Variable
   = Variable String
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show Variable where
+  show (Variable s) = "let " <> s
 

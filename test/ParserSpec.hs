@@ -12,7 +12,7 @@ import Test.Hspec
 
 import DummyCalc.Lexer
 import DummyCalc.Lexer.Tokens
-import DummyCalc.Parser
+import DummyCalc.Parser.Internal
 import DummyCalc.Parser.Data.Internal
 import qualified DummyCalc.Language as La
 
@@ -110,3 +110,22 @@ spec = do
                 )
                 (Val $ La.NumValue 2)
               ), [])
+
+  it "Parse x=>5; 5 + 3;;" $
+    shouldBe
+      (parseProgram $ lexer "x=>5;5+3;;")
+      (Right ( Program
+               [ Ass
+                 (La.Variable "x")
+                 (Val $ La.NumValue 5)
+               , Statement
+                 ( Add
+                   (Val $ La.NumValue 5)
+                   (Val $ La.NumValue 3)
+                 )
+               ]
+             ), [])
+  it "Parse EOS ';'" $
+    shouldBe (parseEOS $ lexer ";") (Just EOS, [])
+  it "Parse Statement 'x=>5;'" $
+    shouldBe (parseStatement $ lexer "x=>5;") (Right (Ass (La.Variable "x") (Val $ La.NumValue 5)), [])

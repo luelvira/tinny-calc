@@ -24,10 +24,11 @@ lexer xs@(x:xs')
   | x == '(' = TokLeftParen : lexer xs'
   | x == ')' = TokRightParen : lexer xs'
   | x == '=' = caseEquals xs'
+  | x == ';' = caseIsEndOfFile xs' -- TokEos : lexer xs'
   | isDigit x = caseReadValue xs
   | isOpChar x = caseReadOperator xs
   | isValidAsFirstChar x = caseIsVariable xs
-  | otherwise = TokError : lexer xs'
+  | otherwise = TokError [x] : lexer xs'
 -- -LexerFun
 
 caseReadValue :: String -> [Token]
@@ -53,3 +54,7 @@ caseEquals xs =
   case xs of
     ('>':ys) -> TokEquals : lexer ys
     _ -> caseReadOperator xs
+
+caseIsEndOfFile :: String -> [Token]
+caseIsEndOfFile (';':_) = [TokEos, TokEof]
+caseIsEndOfFile ys = TokEos : lexer ys

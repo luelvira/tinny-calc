@@ -26,8 +26,7 @@ data Token
   | TokVar La.Variable -- ^ a variable
   | TokEof -- ^ End Of File
   | TokEos -- ^ End of Sentence
-  | TokEol -- ^ End of Line
-  | TokError -- ^ Error
+  | TokError String-- ^ Error
   deriving (Eq)
 -- -TokensDef
 
@@ -37,12 +36,11 @@ instance Show Token where
   show TokRightParen = "')'"
   show TokEquals     = "'='"
   show (TokOperator op) = show op
-  show (TokNumber v) = show v
+  show (TokNumber v) = "TN " <> (show v)
   show (TokVar v)    = show v
   show TokEof        = "EOF"
-  show TokEos        = ";"
-  show TokEol        = "\\n"
-  show TokError      = "Unrecogniced token"
+  show TokEos        = "EOS"
+  show (TokError char) = "Unrecogniced token at " <> char
 -- -ShowTokens
 
 -- opCharsDef

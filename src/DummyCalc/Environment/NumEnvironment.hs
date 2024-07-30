@@ -1,6 +1,6 @@
 {- |
 Module: DummyCalc.Environment.NumEnvironment
-Description: 
+Description: Module in charge of control the operations related within a numeric module
 Copyright: (C) Lucas Elvira Martín <lucaselvira96@gmail.com>, 2024
 License: GPL-3
 Maintainer: lucaselvira96@gmail.com
@@ -19,7 +19,7 @@ type Env = AnEnv La.NumValue
 lastNumVal :: Name
 lastNumVal = "$"
 
-newNumEnvironment :: Env
+newNumEnvironment ::  Env
 newNumEnvironment = insertValue lastNumVal (La.NumValue 0) newEnv
 
 getNumValue :: Env -> Name -> Maybe La.NumValue
